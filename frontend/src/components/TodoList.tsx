@@ -3,7 +3,7 @@ import { Todo } from "../types";
 
 interface TodoListProps {
   todos: Todo[];
-  onEdit: (id: string, title: string) => void;
+  onEdit: (id: string, updates: Partial<Todo>) => void;
   onDelete: (id: string) => void;
   onToggleComplete: (id: string, completed: boolean) => void;
 }
@@ -15,7 +15,7 @@ const TodoList = ({
   onToggleComplete,
 }: TodoListProps) => {
   if (todos.length === 0) {
-    return <p className="empty-list">No todos yet. Add one above!</p>;
+    return <p className="empty-list">No tasks yet. Add one to get started!</p>;
   }
 
   return (

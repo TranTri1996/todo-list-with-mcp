@@ -10,6 +10,10 @@ function App() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [activeFilter, setActiveFilter] = useState<
+    "all" | "open" | "closed" | "archived"
+  >("all");
+  const [showAddForm, setShowAddForm] = useState(false);
 
   useEffect(() => {
     fetchTodos();
@@ -33,14 +37,26 @@ function App() {
     }
   };
 
-  const addTodo = async (title: string) => {
+  const addTodo = async (
+    title: string,
+    category?: string,
+    startTime?: string,
+    endTime?: string
+  ) => {
     try {
       const response = await fetch(`${API_URL}/todos`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title }),
+        body: JSON.stringify({
+          title,
+          category,
+          startTime,
+          endTime,
+          status: "open",
+          assignees: [],
+        }),
       });
 
       if (!response.ok) {
@@ -49,20 +65,21 @@ function App() {
 
       const newTodo = await response.json();
       setTodos((prev) => [...prev, newTodo]);
+      setShowAddForm(false);
     } catch (err) {
       setError("Failed to add todo. Please try again.");
       console.error(err);
     }
   };
 
-  const updateTodo = async (id: string, title: string) => {
+  const updateTodo = async (id: string, updates: Partial<Todo>) => {
     try {
       const response = await fetch(`${API_URL}/todos/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title }),
+        body: JSON.stringify(updates),
       });
 
       if (!response.ok) {
@@ -80,27 +97,8 @@ function App() {
   };
 
   const toggleComplete = async (id: string, completed: boolean) => {
-    try {
-      const response = await fetch(`${API_URL}/todos/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ completed }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update todo");
-      }
-
-      const updatedTodo = await response.json();
-      setTodos((prev) =>
-        prev.map((todo) => (todo.id === id ? updatedTodo : todo))
-      );
-    } catch (err) {
-      setError("Failed to update todo. Please try again.");
-      console.error(err);
-    }
+    const status = completed ? "closed" : "open";
+    updateTodo(id, { completed, status });
   };
 
   const deleteTodo = async (id: string) => {
@@ -120,18 +118,89 @@ function App() {
     }
   };
 
+  const filterTodos = () => {
+    if (activeFilter === "all") return todos;
+    return todos.filter((todo) => todo.status === activeFilter);
+  };
+
+  const getFilterCounts = () => {
+    const counts = {
+      all: todos.length,
+      open: todos.filter((todo) => todo.status === "open").length,
+      closed: todos.filter((todo) => todo.status === "closed").length,
+      archived: todos.filter((todo) => todo.status === "archived").length,
+    };
+    return counts;
+  };
+
+  const formatDate = () => {
+    const now = new Date();
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+    };
+    return now.toLocaleDateString("en-US", options);
+  };
+
+  const counts = getFilterCounts();
+
   return (
     <div className="app">
-      <h1>Todo App</h1>
-      <TodoForm onAdd={addTodo} />
+      <div className="app-header">
+        <div className="header-content">
+          <h1>Today's Task</h1>
+          <p className="date">{formatDate()}</p>
+        </div>
+        <button className="new-task-btn" onClick={() => setShowAddForm(true)}>
+          + New Task
+        </button>
+      </div>
+
+      {showAddForm && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <TodoForm onAdd={addTodo} onCancel={() => setShowAddForm(false)} />
+          </div>
+        </div>
+      )}
 
       {error && <div className="error">{error}</div>}
 
+      <div className="filter-tabs">
+        <button
+          className={`filter-tab ${activeFilter === "all" ? "active" : ""}`}
+          onClick={() => setActiveFilter("all")}
+        >
+          All <span className="badge">{counts.all}</span>
+        </button>
+        <button
+          className={`filter-tab ${activeFilter === "open" ? "active" : ""}`}
+          onClick={() => setActiveFilter("open")}
+        >
+          Open <span className="badge">{counts.open}</span>
+        </button>
+        <button
+          className={`filter-tab ${activeFilter === "closed" ? "active" : ""}`}
+          onClick={() => setActiveFilter("closed")}
+        >
+          Closed <span className="badge">{counts.closed}</span>
+        </button>
+        <button
+          className={`filter-tab ${
+            activeFilter === "archived" ? "active" : ""
+          }`}
+          onClick={() => setActiveFilter("archived")}
+        >
+          Archived <span className="badge">{counts.archived}</span>
+        </button>
+      </div>
+
       {isLoading ? (
-        <p>Loading todos...</p>
+        <p>Loading tasks...</p>
       ) : (
         <TodoList
-          todos={todos}
+          todos={filterTodos()}
           onEdit={updateTodo}
           onDelete={deleteTodo}
           onToggleComplete={toggleComplete}
