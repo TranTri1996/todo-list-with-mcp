@@ -112,14 +112,17 @@ function App() {
 
   const filterTodos = () => {
     if (activeFilter === "all") return todos;
-    return todos.filter((todo) => todo.status === activeFilter);
+    if (activeFilter === "open") return todos.filter((todo) => !todo.completed);
+    if (activeFilter === "closed")
+      return todos.filter((todo) => todo.completed);
+    return todos;
   };
 
   const getFilterCounts = () => {
     const counts = {
       all: todos.length,
-      open: todos.filter((todo) => todo.status === "open").length,
-      closed: todos.filter((todo) => todo.status === "closed").length,
+      open: todos.filter((todo) => !todo.completed).length,
+      closed: todos.filter((todo) => todo.completed).length,
     };
     return counts;
   };
