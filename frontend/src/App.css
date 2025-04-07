@@ -20,20 +20,20 @@ body {
 
 /* App container */
 .app {
-  max-width: 800px;
-  width: 90%;
   margin: 0 auto;
   background-color: white;
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   padding: 2rem;
+  min-width: 800px;
+  max-width: 900px;
 }
 
 /* Header styles */
 .app-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 2rem;
 }
 
@@ -255,16 +255,41 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+/* Scrollbar styling */
+.todo-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.todo-list::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+.todo-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+
+.todo-list::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 .todo-item {
+  margin-top: 2px;
+  padding: 12px;
   background-color: white;
   border-radius: 12px;
   overflow: hidden;
-  padding: 1.5rem;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
   border: 1px solid #e2e8f0;
   transition: all 0.2s ease;
+  min-height: 8rem;
 }
 
 .todo-item:hover {
@@ -354,7 +379,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
 }
 
 .todo-assignees {
