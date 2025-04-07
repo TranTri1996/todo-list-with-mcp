@@ -10,9 +10,9 @@ function App() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
-  const [activeFilter, setActiveFilter] = useState<
-    "all" | "open" | "closed" | "archived"
-  >("all");
+  const [activeFilter, setActiveFilter] = useState<"all" | "open" | "closed">(
+    "all"
+  );
   const [showAddForm, setShowAddForm] = useState(false);
 
   useEffect(() => {
@@ -37,12 +37,7 @@ function App() {
     }
   };
 
-  const addTodo = async (
-    title: string,
-    category?: string,
-    startTime?: string,
-    endTime?: string
-  ) => {
+  const addTodo = async (title: string) => {
     try {
       const response = await fetch(`${API_URL}/todos`, {
         method: "POST",
@@ -51,9 +46,6 @@ function App() {
         },
         body: JSON.stringify({
           title,
-          category,
-          startTime,
-          endTime,
           status: "open",
           assignees: [],
         }),
@@ -128,7 +120,6 @@ function App() {
       all: todos.length,
       open: todos.filter((todo) => todo.status === "open").length,
       closed: todos.filter((todo) => todo.status === "closed").length,
-      archived: todos.filter((todo) => todo.status === "archived").length,
     };
     return counts;
   };
@@ -185,14 +176,6 @@ function App() {
           onClick={() => setActiveFilter("closed")}
         >
           Closed <span className="badge">{counts.closed}</span>
-        </button>
-        <button
-          className={`filter-tab ${
-            activeFilter === "archived" ? "active" : ""
-          }`}
-          onClick={() => setActiveFilter("archived")}
-        >
-          Archived <span className="badge">{counts.archived}</span>
         </button>
       </div>
 
