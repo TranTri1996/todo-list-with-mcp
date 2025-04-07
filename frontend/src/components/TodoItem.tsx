@@ -16,6 +16,7 @@ const TodoItem = ({
 }: TodoItemProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(todo.title);
+  const [originalCompleted, setOriginalCompleted] = useState(false);
 
   const formatTime = (timeString?: string) => {
     if (!timeString) return "";
@@ -56,6 +57,21 @@ const TodoItem = ({
     }
   };
 
+  const startEditing = () => {
+    setEditTitle(todo.title);
+    setOriginalCompleted(todo.completed);
+    setIsEditing(true);
+  };
+
+  const cancelEditing = () => {
+    setEditTitle(todo.title);
+    // Restore original completion status if it was changed
+    if (todo.completed !== originalCompleted) {
+      onToggleComplete(todo.id, originalCompleted);
+    }
+    setIsEditing(false);
+  };
+
   return (
     <div className={`todo-item ${todo.completed ? "completed" : ""}`}>
       <div className="todo-content">
@@ -85,7 +101,7 @@ const TodoItem = ({
                   </button>
                   <button
                     type="button"
-                    onClick={() => setIsEditing(false)}
+                    onClick={cancelEditing}
                     className="cancel-edit-btn"
                   >
                     Cancel
@@ -128,7 +144,7 @@ const TodoItem = ({
 
           {!isEditing && (
             <div className="todo-actions">
-              <button onClick={() => setIsEditing(true)}>Edit</button>
+              <button onClick={startEditing}>Edit</button>
               <button onClick={() => onDelete(todo.id)}>Delete</button>
             </div>
           )}
