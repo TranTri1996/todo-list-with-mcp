@@ -1,0 +1,17 @@
+{
+  "name": "mcp-todo",
+  "version": "1.0.0",
+  "description": "MCP Todo Application",
+  "private": true,
+  "scripts": {
+    "start:frontend": "cd frontend && npm run dev",
+    "start:backend": "cd backend && npm run dev",
+    "build:mcp": "cd mcp-server && npm run build",
+    "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\"",
+    "build": "concurrently \"cd frontend && npm run build\" \"cd backend && npm run build\" \"cd mcp-server && npm run build\"",
+    "install": "concurrently \"cd frontend && npm install\" \"cd backend && npm install\" \"cd mcp-server && npm install\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
